@@ -38,39 +38,7 @@ ARG TARGETPLATFORM
 ARG LDFLAGS
 RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go build -a -ldflags "$LDFLAGS" -o bin/arctl-server cmd/server/main.go
 
-FROM ubuntu:22.04 AS runtime
-
-RUN apt-get update && apt-get install -y \
-    curl \
-    wget \
-    unzip \
-    && rm -rf /var/lib/apt/lists/*
-
-
-# Install Docker CLI and Compose plugin for the target architecture
-ARG TARGETARCH
-RUN DOCKER_ARCH=$(case ${TARGETARCH} in \
-        "amd64") echo "x86_64" ;; \
-        "arm64") echo "aarch64" ;; \
-        *) echo "x86_64" ;; \
-    esac) && \
-    wget https://download.docker.com/linux/static/stable/${DOCKER_ARCH}/docker-28.5.1.tgz && \
-    tar -xvf docker-28.5.1.tgz && \
-    mv docker/docker /usr/local/bin/docker && \
-    rm -rf docker-28.5.1.tgz docker
-
-# Install Docker Compose plugin
-ARG TARGETARCH
-RUN DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker} && \
-    COMPOSE_ARCH=$(case ${TARGETARCH} in \
-        "amd64") echo "x86_64" ;; \
-        "arm64") echo "aarch64" ;; \
-        *) echo "x86_64" ;; \
-    esac) && \
-    mkdir -p $DOCKER_CONFIG/cli-plugins && \
-    curl -SL https://github.com/docker/compose/releases/download/v2.40.3/docker-compose-linux-${COMPOSE_ARCH} -o $DOCKER_CONFIG/cli-plugins/docker-compose && \
-    chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose && \
-    docker compose version
+FROM docker:28.5.1-cli AS runtime
 
 COPY --from=builder /app/bin/arctl-server /app/bin/arctl-server
 COPY .env /app/.env

@@ -1,11 +1,11 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/sh
+set -eu
 
 # For test deployments (e.g., Render), load baked runtime settings from /app/.env.
-if [[ -f /app/.env ]]; then
+if [ -f /app/.env ]; then
   set -a
   # shellcheck disable=SC1091
-  source /app/.env
+  . /app/.env
   set +a
 fi
 
