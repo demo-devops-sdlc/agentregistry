@@ -12,6 +12,7 @@ on:
 env:
   VERSION: ${{ github.event.inputs.version || github.ref_name }}
   DOCKER_REGISTRY: ghcr.io
+  DOCKER_REPO: ${{ secrets.DOCKER_REPO || github.repository }}
 
 jobs:
   docker:
@@ -69,7 +70,7 @@ jobs:
     env:
       HELM_PLUGIN_UNITTEST_VERSION: v1.0.3
       HELM_REGISTRY: ${{ secrets.HELM_REGISTRY || 'ghcr.io' }}
-      HELM_REPO: ${{ secrets.HELM_REPO || 'agentregistry-dev/agentregistry' }}
+      HELM_REPO: ${{ secrets.HELM_REPO || github.repository }}
       HELM: go tool -modfile=tools/go.mod helm
     permissions:
       contents: write
