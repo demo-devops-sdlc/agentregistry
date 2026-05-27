@@ -46,7 +46,6 @@ internal/registry/api/ui/dist/
 .DS_Store
 Thumbs.db
 
-.env
 .env.local
 .env.staging
 .env.production
